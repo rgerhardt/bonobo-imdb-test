@@ -13,4 +13,4 @@ pip3 install -f requirements.txt
 python3 main.py
 ```
 
-The script genererates a script called movies.csv with the movie list.
+The script genererates a file called movies.csv with the movie list.
