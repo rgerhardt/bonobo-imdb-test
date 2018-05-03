@@ -26,13 +26,15 @@ class Top250MoviesPageExtractor():
             rank, title, year = self.extract_basic_info(tr)
             rating = self.extract_rating(tr)
             link = self.extract_movie_link(tr)
+            title_id = self.extract_title_id(tr)
 
             yield {
                 'rank':rank,
                 'title':title,
                 'year': year,
                 'rating': rating,
-                'link': link
+                'link': link,
+                'title_id': title_id
             }
 
     def find_movie_table_rows(self):
@@ -42,6 +44,10 @@ class Top250MoviesPageExtractor():
     def extract_movie_link(self, movie_row):
         td = movie_row.find('td', class_='titleColumn')
         return td.find('a')['href']
+
+    def extract_title_id(self, movie_row):
+        element = movie_row.select('[data-titleid]')[0]
+        return element['data-titleid']
 
     def extract_basic_info(self, movie_row):
         td = movie_row.find('td', class_='titleColumn')
@@ -75,7 +81,7 @@ class MovieTranform():
 @use_context
 class DictCsvWriter(bonobo.FileWriter):
 
-    fields = ('rank', 'title', 'year', 'rating', 'link')
+    fields = ('rank', 'title_id', 'title', 'year', 'rating', 'link')
 
     def writer_factory(self, file):
         return csv.DictWriter(file, fieldnames=self.fields)
