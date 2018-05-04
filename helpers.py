@@ -4,7 +4,8 @@ import re
 from bs4 import BeautifulSoup as bs
 
 import bonobo
-from bonobo.config.processors import use_context
+from bonobo.config import Option, use_context
+from bonobo.util import ensure_tuple
 
 import requests
 
@@ -81,7 +82,7 @@ class MovieTranform():
 @use_context
 class DictCsvWriter(bonobo.FileWriter):
 
-    fields = ('rank', 'title_id', 'title', 'year', 'rating', 'link')
+    fields = Option(ensure_tuple, required=True)
 
     def writer_factory(self, file):
         return csv.DictWriter(file, fieldnames=self.fields)

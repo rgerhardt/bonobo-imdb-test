@@ -9,6 +9,7 @@ if __name__ == '__main__':
         MovieTranform(),
         DictCsvWriter(
             'movies.csv',
+            fields=('rank', 'title_id', 'title', 'year', 'rating', 'link')
         ),
     )
     bonobo.run(graph)
