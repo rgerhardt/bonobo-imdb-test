@@ -9,20 +9,24 @@ from bonobo.util import ensure_tuple
 
 import requests
 
+class UrlSoupPageFetcher():
 
-class Top250MoviesPageExtractor():
+    def __init__(self, url):
+        self.url = url
 
-    URL = 'https://www.imdb.com/chart/top?ref_=nv_mv_250_6'
-
-    def __init__(self):
-        resp = requests.get(self.URL)
+    def fetch(self):
+        resp = requests.get(self.url)
         if resp.status_code != 200:
-            raise Exception('Error while fetching IMDB page!')
+            raise Exception('Error while fetching {} url!'.format(self.url))
 
-        self.page = bs(resp.text, 'html.parser')
+        yield bs(resp.text, 'html.parser')
 
-    def read(self, *args, **kwargs):
-        movie_trs = self.find_movie_table_rows()
+    __call__ = fetch
+
+class ChartPageParser():
+
+    def parse(self, page, *args, **kwargs):
+        movie_trs = self.find_movie_table_rows(page)
         for tr in movie_trs:
             rank, title, year = self.extract_basic_info(tr)
             rating = self.extract_rating(tr)
@@ -38,8 +42,8 @@ class Top250MoviesPageExtractor():
                 'title_id': title_id
             }
 
-    def find_movie_table_rows(self):
-        tbody = self.page.find('tbody', class_='lister-list')
+    def find_movie_table_rows(self, page):
+        tbody = page.find('tbody', class_='lister-list')
         return tbody.find_all('tr')
 
     def extract_movie_link(self, movie_row):
@@ -58,10 +62,10 @@ class Top250MoviesPageExtractor():
         td = movie_row.find('td', class_='ratingColumn imdbRating')
         return td.text
 
-    __call__ = read
+    __call__ = parse
 
 
-class MovieTranform():
+class MovieRankTranform():
 
     def transform(self, movie):
         movie['rank'] = movie['rank'].replace('.', '')
